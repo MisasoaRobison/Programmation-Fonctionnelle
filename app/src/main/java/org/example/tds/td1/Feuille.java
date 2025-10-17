@@ -1,32 +1,28 @@
 // Misasoa ROBISON - 45009085
-package org.tds.td1;
+package org.example.tds.td1;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.*;
 
-import org.tds.td1.*;
-public class Feuille implements Arbre {
 
-    private Integer value;
+//import org.tds.td1.*;
+public class Feuille <X extends Sommable<X> & Comparable<X>> implements Arbre <X>{
 
-    public Feuille (Integer value){
+    private X value;
+
+    public Feuille(X value){
         this.value = value;
     }
 
     @Override public int taille(){
-        return 1; //c'est la taille d'une feuille tout simplement
+        return (value != null)?1:0; //c'est la taille d'une feuille tout simplement
     }
-    @Override public boolean contient(final Integer val){
-        if(val == null && value == null){
-            return true;
-        }
-        if(val == null  || value == null){
-            return false;
-        }
+    @Override public boolean contient(final X val){
         return value.equals(val);
     }
-    @Override public Set<Integer> valeurs(){
+    @Override public Set<X> valeurs(){
         if (value == null){
             return new HashSet <> ();
         }
@@ -34,13 +30,13 @@ public class Feuille implements Arbre {
             return new HashSet<>(Collections.singleton(value));
         }
     }
-    @Override public Integer somme(){
+    @Override public X somme(){
         return value;
     }
-    @Override public Integer min(){
+    @Override public X min(){
         return value;
     }
-    @Override public Integer max(){
+    @Override public X max(){
         return value;
     }
     @Override public boolean estTrie(){

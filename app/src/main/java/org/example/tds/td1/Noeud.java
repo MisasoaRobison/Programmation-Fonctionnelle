@@ -1,96 +1,125 @@
 // Misasoa ROBISON - 45009085
 
-package org.tds.td1;
+package org.example.tds.td1;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
-import org.tds.td1.*;
+import java.util.*;
+//import org.tds.td1.*;
 
 
 
-public class Noeud implements Arbre {
-    private final List <Arbre> fils;
-    private Integer value; //pour le noeud
+public class Noeud<X extends Sommable<X> & Comparable<X>> implements Arbre<X> {
+    private final List <Arbre<X>> fils;
+    private X value; //pour le noeud
 
-    public Noeud(Integer value, List<Arbre> fils){
-        this.value = value;
-        this.fils = new ArrayList<>(fils);
-    }
-    public Noeud(Integer value){
-        this.value = value;
-        this.fils = new ArrayList <>();
+    public Noeud(List<Arbre<X>> fils){
+        if (fils != null)
+            this.fils = new ArrayList<Arbre<X>>(fils);
+        else this.fils = new ArrayList<Arbre<X>>();
     }
     @Override public int taille(){
-        int taille = (value!=null) ? 1:0; //en comptant le noeud courrant
-        for (Arbre a : fils){
+        int taille = 0;
+        for (Arbre<X> a : fils){
             if (a!=null) taille += a.taille();
         }
         return taille;
     }
-    @Override public boolean contient(final Integer val){
-        if (val==null && value == null){
-            return true;
-        }
-        if (value != null && value.equals(val)){
-            return true;
-        }
-        for (Arbre a : fils){
-            if (a!=null && a.contient(val)){
-                return true;
-            }
+    @Override public boolean contient(final X val){
+        for (Arbre<X> a : fils){
+            if (a.contient(val)) return true;
         }
         return false;
     }
-    @Override public Set<Integer> valeurs(){
-        Set<Integer> ensemble = new HashSet<>();
+    @Override public Set<X> valeurs(){
+        Set<X> ensemble = new HashSet<>();
         if (value != null) ensemble.add(value);
         for (Arbre a : fils){
             if (a!=null) ensemble.addAll(a.valeurs());
         }
         return ensemble;
     }
-    @Override public Integer somme(){
-        Integer somme = (value!=null) ? value : 0;
-        for (Arbre a : fils){
-            somme+=a.somme();
+    @Override public X somme(){
+        if (fils.isEmpty()) return null;
+
+        X somme = fils.get(0).somme();
+        for (int i=1; i<fils.size(); i++){
+            somme = somme.sommer(fils.get(i).somme());
         }
         return somme;
     }
-    @Override public Integer min(){
-        Integer min = (value!=null) ? value : null;
-        for (Arbre a : fils){
-            Integer fils_min = a.min();
-            min = (fils_min!=null && (min == null || fils_min < min)) ? fils_min : min;
+
+    @Override public X min(){
+        if (fils.isEmpty()) return null;
+
+        X minValue = fils.get(0).min();
+        for (int i=1; i<fils.size(); i++){
+            X current_min = fils.get(i).min();
+            if (current_min.compareTo(minValue) < 0){
+                minValue = current_min;
+            }
         }
-        return min;
+        return minValue;
     }
-    @Override public Integer max(){
-        Integer max = (value!=null) ? value : null;
+    @Override public X max(){
+        if (fils.isEmpty()) return null;
+
+        X maxValue = fils.get(0).max();
+        for(int i=1; i<fils.size(); i++){
+            X current_max = fils.get(i).max();
+            if (current_max.compareTo(maxValue) > 0){
+                maxValue = current_max;
+            }
+        }
+        return maxValue;
+    }
+    /*@Override public Integer max(){
+        Integer max = null;
         for (Arbre a : fils){
-            Integer fils_max = a.max();
-            max = (fils_max!=null && (max==null || fils_max > max)) ? fils_max : max;
+            Integer m = a.max();
+            if (m!=null){
+                if (max == null || m > max){
+                    max = m;
+                } 
+            }
         }
         return max;
     }
+
     @Override public boolean estTrie(){
+        Integer previous = null;
+
         for (Arbre a : fils){
-            if (a!=null && !a.estTrie()){
+            if (a.estTrie()){
                 return false;
             }
-        }
-        Integer current = value; //je vais utiliser pour comparer avec les valeurs pour les fils
-        for (Arbre a : fils){
-            Integer fils_min = a.min();
-            if (current != null && fils_min!=null && fils_min < current){
+
+            Integer current_min = a.min();
+            if(previous != null && current_min != null && previous > current_min){
                 return false;
             }
-            Integer max = a.max();
-            current = (max != null)? max: current;
+
+            Integer current_max = a.max();
+            if (current_max != null){
+                previous = current_max;
+            }
         }
         return true;
-    }
+    }*/
+   @Override public boolean estTrie(){
+    X lastMax = null;
+    for (Arbre<X> a : fils){
+        if (!a.estTrie()) return false;
 
+        X current_min = a.min();
+        if (lastMax!=null && current_min.compareTo(lastMax)<0){
+            return false;
+        }
+        lastMax = a.max();
+    }
+    return true;
+   }
 }
